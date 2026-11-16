@@ -213,3 +213,144 @@ document.querySelector("#btn-finalizar").addEventListener("click", finalizarPedi
 // ---------- Início ----------
 mostrarCardapio("Todos");
 mostrarPedido();
+
+// ---------- Câmera ----------
+
+const videoCamera = document.querySelector("#camera");
+const canvasFoto = document.querySelector("#canvas");
+const btnFoto = document.querySelector("#btn-foto");
+const btnAbrirCamera = document.querySelector("#btn-abrir-camera");
+const btnLimparGaleria = document.querySelector("#btn-limpar-galeria");
+const galeria = document.querySelector("#galeria");
+const tituloGaleria = document.querySelector("#titulo-galeria");
+
+function carregarFotos() {
+  const salvo = localStorage.getItem("fotos");
+  if (salvo) {
+    try {
+      return JSON.parse(salvo);
+    } catch (e) {
+      return [];
+    }
+  }
+  return [];
+}
+
+function salvarFotos() {
+  localStorage.setItem("fotos", JSON.stringify(fotos));
+  localStorage.setItem("galeria", JSON.stringify(fotos));
+}
+
+let fotos = carregarFotos();
+
+async function iniciarCamera() {
+  if (!videoCamera || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    return;
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1080 } });
+    videoCamera.srcObject = stream;
+  } catch (erro) {
+    mostrarAviso("Acesso à câmera negado. É necessário liberar a permissão para utilizar o recurso.");
+  }
+}
+
+function mostrarGaleria() {
+  if (!galeria) {
+    return;
+  }
+  galeria.innerHTML = "";
+  if (tituloGaleria) {
+    tituloGaleria.textContent = `Galeria (${fotos.length})`;
+  }
+  for (const foto of fotos) {
+    const item = document.createElement("div");
+    item.className = "foto-galeria";
+    item.innerHTML = `
+      <img src="${foto.imagem || foto.foto || foto.dataUrl || ""}" alt="Foto">
+      <p class="legenda-foto">${foto.legenda || foto.caption || ""}</p>
+      <button class="btn-remover-foto">Remover</button>
+    `;
+    const btnRemover = item.querySelector(".btn-remover-foto");
+    if (btnRemover) {
+      btnRemover.addEventListener("click", function () {
+        fotos = fotos.filter(function (f) {
+          return f !== foto;
+        });
+        salvarFotos();
+        mostrarGaleria();
+      });
+    }
+    galeria.appendChild(item);
+  }
+}
+
+if (btnAbrirCamera) {
+  btnAbrirCamera.addEventListener("click", async function () {
+    if (videoCamera) {
+      videoCamera.hidden = false;
+    }
+    if (btnFoto) {
+      btnFoto.hidden = false;
+    }
+    if (!videoCamera.srcObject) {
+      await iniciarCamera();
+    }
+  });
+}
+
+if (btnLimparGaleria) {
+  btnLimparGaleria.addEventListener("click", function () {
+    fotos = [];
+    salvarFotos();
+    mostrarGaleria();
+    mostrarAviso("Galeria limpa");
+  });
+}
+
+if (btnFoto) {
+  btnFoto.addEventListener("click", async function () {
+    if (!videoCamera || !canvasFoto) {
+      return;
+    }
+    if (!videoCamera.srcObject) {
+      await iniciarCamera();
+    }
+    if (!videoCamera.srcObject) {
+      return;
+    }
+    if (videoCamera.readyState < 2 || !videoCamera.videoWidth) {
+      await new Promise(function (resolve) {
+        function pronto() {
+          videoCamera.removeEventListener("loadedmetadata", pronto);
+          resolve();
+        }
+        videoCamera.addEventListener("loadedmetadata", pronto);
+        setTimeout(resolve, 1500);
+      });
+    }
+    await new Promise(function (resolve) {
+      requestAnimationFrame(resolve);
+    });
+    const largura = 1080;
+    const escala = largura / (videoCamera.videoWidth || largura);
+    canvasFoto.width = largura;
+    canvasFoto.height = Math.round((videoCamera.videoHeight || largura) * escala);
+    const ctx = canvasFoto.getContext("2d");
+    ctx.drawImage(videoCamera, 0, 0, canvasFoto.width, canvasFoto.height);
+    const imagem = canvasFoto.toDataURL("image/jpeg", 0.95);
+    const legenda = prompt("Legenda da foto:");
+    const foto = {
+      imagem: imagem,
+      legenda: legenda === null ? "" : legenda,
+      data: new Date().toLocaleString()
+    };
+    fotos.push(foto);
+    salvarFotos();
+    mostrarGaleria();
+    vibrar(50);
+    mostrarAviso("Foto capturada");
+  });
+}
+
+mostrarGaleria();

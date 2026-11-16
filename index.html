@@ -36,6 +36,20 @@
       </div>
       <button id="btn-finalizar" class="btn-principal">Finalizar pedido</button>
     </section>
+
+    <!-- ===== Tela 3: Câmera ===== -->
+    <section id="tela-camera" class="tela" hidden>
+      <h2>Câmera</h2>
+      <div class="acoes-camera">
+        <button id="btn-abrir-camera" class="btn-principal">Abrir câmera</button>
+        <button id="btn-limpar-galeria" class="btn-secundario">Limpar galeria</button>
+      </div>
+      <video id="camera" autoplay playsinline hidden></video>
+      <button id="btn-foto" class="btn-principal" hidden>Tirar foto</button>
+      <canvas id="canvas" hidden></canvas>
+      <h2 id="titulo-galeria">Galeria (0)</h2>
+      <div id="galeria" class="galeria"></div>
+    </section>
   </main>
 
   <!-- ===== Barra de abas, fixa embaixo, como nos apps ===== -->
@@ -44,6 +58,7 @@
     <button class="aba" data-tela="tela-pedido">🧾<span>Pedido</span>
       <span id="contador-pedido" class="contador" hidden>0</span>
     </button>
+    <button class="aba" data-tela="tela-camera">📷<span>Câmera</span></button>
   </nav>
 
   <!-- Mensagem rápida que aparece e some (toast) -->
