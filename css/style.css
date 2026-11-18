@@ -336,6 +336,68 @@ button:disabled {
   word-break: break-word;
 }
 
+/* ---------- Modo escuro automático ---------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --cor-principal: #d4a373;
+    --cor-destaque: #6f4e37;
+    --cor-fundo: #1a1410;
+    --cor-card: #2b2118;
+    --cor-texto: #f5efe6;
+    --cor-texto-suave: #b8a89a;
+  }
+}
+
+/* ---------- Faixa offline ---------- */
+.faixa-offline {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  padding: 8px 16px;
+  text-align: center;
+  background: #c0392b;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* ---------- Busca por nome ---------- */
+#busca-produtos {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border: 1px solid var(--cor-principal);
+  border-radius: var(--raio);
+  background: var(--cor-card);
+  color: var(--cor-texto);
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+#busca-produtos::placeholder {
+  color: var(--cor-texto-suave);
+}
+
+/* ---------- Observação do pedido ---------- */
+#observacao-pedido {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  border: 1px solid var(--cor-principal);
+  border-radius: var(--raio);
+  background: var(--cor-card);
+  color: var(--cor-texto);
+  font-size: 1rem;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+#observacao-pedido::placeholder {
+  color: var(--cor-texto-suave);
+}
+
 /* ---------- Aviso rápido (toast) ---------- */
 .aviso {
   position: fixed;

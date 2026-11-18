@@ -13,6 +13,8 @@
     <h1>☕ Café Mobile</h1>
   </header>
 
+  <div id="faixa-offline" class="faixa-offline" hidden>Você está offline</div>
+
   <main>
     <!-- ===== Tela 1: Cardápio ===== -->
     <section id="tela-cardapio" class="tela">
@@ -23,6 +25,8 @@
         <button class="filtro" data-categoria="Salgados">Salgados</button>
         <button class="filtro" data-categoria="Doces">Doces</button>
       </div>
+      <input type="search" id="busca-produtos" placeholder="Buscar produto por nome">
+      <button id="btn-cafeteria-proxima" class="btn-secundario">Cafeteria mais perto</button>
       <div id="lista-produtos" class="lista-produtos"></div>
     </section>
 
@@ -34,6 +38,7 @@
         <span>Total</span>
         <strong id="total-pedido">R$ 0,00</strong>
       </div>
+      <textarea id="observacao-pedido" placeholder="Observações do pedido"></textarea>
       <button id="btn-finalizar" class="btn-principal">Finalizar pedido</button>
     </section>
 

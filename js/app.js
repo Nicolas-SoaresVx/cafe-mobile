@@ -73,10 +73,13 @@ function criarCard(produto) {
   return card;
 }
 
+let termoBusca = "";
+
 function mostrarCardapio(categoria) {
   listaProdutos.innerHTML = "";
   for (const produto of produtos) {
-    if (categoria === "Todos" || produto.categoria === categoria) {
+    if ((categoria === "Todos" || produto.categoria === categoria) &&
+        produto.nome.toLowerCase().includes(termoBusca)) {
       listaProdutos.appendChild(criarCard(produto));
     }
   }
@@ -89,6 +92,15 @@ for (const botao of botoesFiltro) {
     }
     botao.classList.add("ativo");
     mostrarCardapio(botao.dataset.categoria);
+  });
+}
+
+const campoBusca = document.querySelector("#busca-produtos");
+if (campoBusca) {
+  campoBusca.addEventListener("input", function () {
+    termoBusca = campoBusca.value.toLowerCase();
+    const categoriaAtiva = document.querySelector(".filtro.ativo");
+    mostrarCardapio(categoriaAtiva ? categoriaAtiva.dataset.categoria : "Todos");
   });
 }
 
@@ -197,12 +209,33 @@ function mostrarPedido() {
   document.querySelector("#btn-finalizar").disabled = pedido.length === 0;
 }
 
+const campoObservacao = document.querySelector("#observacao-pedido");
+
+function carregarObservacao() {
+  const salva = localStorage.getItem("observacaoPedido");
+  if (salva && campoObservacao) {
+    campoObservacao.value = salva;
+  }
+}
+
+function salvarObservacao() {
+  if (campoObservacao) {
+    localStorage.setItem("observacaoPedido", campoObservacao.value);
+  }
+}
+
+if (campoObservacao) {
+  campoObservacao.addEventListener("input", salvarObservacao);
+  carregarObservacao();
+}
+
 function finalizarPedido() {
   if (pedido.length === 0) {
     return;
   }
   vibrar([100, 50, 100, 50, 200]); // padrão "comemoração"
-  mostrarAviso("Pedido enviado! Total: " + formatarPreco(calcularTotal()));
+  const observacao = localStorage.getItem("observacaoPedido") || "";
+  mostrarAviso("Pedido enviado! Total: " + formatarPreco(calcularTotal()) + (observacao ? " | Obs: " + observacao : ""));
   pedido = [];
   salvarPedido();
   mostrarPedido();
@@ -274,6 +307,9 @@ function mostrarGaleria() {
     const btnRemover = item.querySelector(".btn-remover-foto");
     if (btnRemover) {
       btnRemover.addEventListener("click", function () {
+        if (!confirm("Deseja apagar esta foto?")) {
+          return;
+        }
         fotos = fotos.filter(function (f) {
           return f !== foto;
         });
@@ -354,3 +390,36 @@ if (btnFoto) {
 }
 
 mostrarGaleria();
+
+// ---------- Status de conex�o ----------
+// ---------- Cafeteria mais perto (GPS) ----------
+const btnCafeteriaProxima = document.querySelector("#btn-cafeteria-proxima");
+
+if (btnCafeteriaProxima) {
+  btnCafeteriaProxima.addEventListener("click", function () {
+    if (!navigator.geolocation) {
+      mostrarAviso("Geolocalização não suportada neste dispositivo.");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(function (posicao) {
+      const lat = posicao.coords.latitude;
+      const lon = posicao.coords.longitude;
+      const url = "https://www.google.com/maps/search/cafeteria/@" + lat + "," + lon + ",15z";
+      window.open(url, "_blank");
+    }, function () {
+      mostrarAviso("Permissão de localização negada ou indisponível.");
+    });
+  });
+}
+
+const faixaOffline = document.querySelector("#faixa-offline");
+
+function atualizarStatusConexao() {
+  if (faixaOffline) {
+    faixaOffline.hidden = navigator.onLine;
+  }
+}
+
+window.addEventListener("online", atualizarStatusConexao);
+window.addEventListener("offline", atualizarStatusConexao);
+atualizarStatusConexao();
